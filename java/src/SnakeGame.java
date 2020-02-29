@@ -5,12 +5,14 @@ public class SnakeGame {
     private static int recursiveChecks;
 
     public SnakeGame() {
+
         int[][] board = new int[1][1];
 
     }
-
+//making the board
     public SnakeGame(boolean[][] game, int x, int y) {
-        headposition = new int[]{x, y};
+        this.game = new boolean[game.length][game[0].length];
+        headposition = new int[]{x, y};//setting the head position
         for (int i = 0; i < game.length; i++) {
             for (int j = 0; j < game[i].length; j++) {
 
@@ -20,72 +22,133 @@ public class SnakeGame {
     }
 
     public int[] findTailExhaustive() {//tail is true element with exactly one neighbor
-       int length=0;
         resetCounters();
         int[] result = new int[3];
         for (int i = 0; i < game.length; i++) {
-            for (int j = 0; i < game[i].length; j++) {
+            for (int j = 0; j < game[i].length; j++) {
+                if (foundtail(result) == false) {//helper method to increase exhaustive checks
+                    exhaustiveChecks++;
+                }
 
-                if (game[i][j]==true) {
-                    length++;
-                    if (i == headposition[0] && j == headposition[1]) {
-                        length++;
-                        exhaustiveChecks++;
+                if (game[i][j]) {//if i and j are apart of the game
+                    length();
+                    if ((neighbors(i, j) == 1)) {//checks neighbors
+                        if (i == headposition[0] && j == headposition[1]) {//finds the head
+                        } else {
+                            result[0] = i;
+                            result[1] = j;
+                        }
+                    }
+                    if (neighbors(i, j) >= 2) {
+
                         continue;
+                    }
 
-                    }
-                    else if (neighbors(i, j) == 1) {//i and k are telling current spot so wheres the top so you have to subtact the i and k is to the sides ifyou uses a helper method itll help you in the long run you need to finish the helper method essentially you could get it from the other one
-                        result[0] = i;// even tho you shouldnt just change the variables but yea its almost the same my only q is the length for the length you need to make another method to return it so it wont be red
-                        result[1] =  j;
-                        length++;
-                    }
                 }
             }
         }
-        result[2] = length;
+        //System.out.println("Exhaustive checks : " + exhaustiveChecks);
+        //System.out.println(" Length of snake is: "+ length());
+        result[2] = length();
         return result;
     }
-    public int neighbors(int i, int j) {
-        int counter = 0;
-        counter += result(i - 1,j - 1) ;
-        counter += result( i,j - 1);
-        counter +=result(i + 1,j - 1) ;
-        counter +=result(i - 1,j) ;
-        counter +=result(i + 1,j) ;
-        counter +=result(i - 1,j + 1) ;
-        counter +=result(i,j + 1) ;
-        counter +=result(i + 1,j + 1) ;
-        return counter;
-    }
-    public int result(int i,int j){
-        if (i < 0 || i >= game.length) {
-            return 0;
-        }
-        else if(j<0|| j<game.length){
-            return 0;
-        }else {
-            return 1;
-        }
-    }
-    public int[] findTailRecursive(){
-     int currentPosition[]=new int []{headposition[0]};
-        if (==neighbors()){
+
+    public boolean foundtail(int[] result) {//helper method for exhaustive checks
+        if ((result[0] == -1) && (result[1] == -1)) {
 
         }
+        return false;
     }
-    private int[] findTailRecursive(int[] currentPosition, int[] previousPosition){
-    int a[]= new int[]{headposition[0] + 1, headposition[1]};
-        return a;
+
+    public int neighbors(int i, int j) {// checks for neighbors
+        int counter = 0;// is checking up
+        if (i - 1 >= 0) {
+            if (game[i - 1][j]) {
+                counter++;
+            }
+        }
+        if (i + 1 < game.length) {//checking down
+            if (game[i + 1][j]) {
+                counter++;
+            }
+        }
+        if (j - 1 >= 0) {//checking the the left
+            if (game[i][j - 1]) {
+                counter++;
+            }
+        }
+        if (j + 1 < game[i].length) {//checking to the right
+            if (game[i][j + 1]) {
+                counter++;
+            }
+        }
+
+        return counter;
     }
+
+    public int length() {// helper method to determine the length
+        int slength = 0;//counter
+        for (int i = 0; i < game.length; i++) {
+            for (int j = 0; j < game[i].length; j++) {
+                if (this.game[i][j]) {
+                    slength++;
+                }
+            }
+        }
+        return slength;
+    }
+
+
+    public int[] findTailRecursive() {
+        resetCounters();
+
+        return findTailRecursive(headposition, headposition);
+    }
+
+
+    private int[] findTailRecursive(int[] currentPosition, int[] previousPosition) {//has four recursive calls to go left you subtract y -1
+        recursiveChecks++;
+        if (neighbors(currentPosition[0], currentPosition[1]) == 1) {
+            if ((headposition[0] != currentPosition[0]) && (headposition[1] != currentPosition[1])) ;{
+                return new int[]{currentPosition[0], currentPosition[1], length()};
+            }
+        }
+                if ((currentPosition[0] - 1 < game.length) && (game[0 - 1][1] == true) && (previousPosition[0] != currentPosition[0] - 1)) {// checks if apart of board, is apart of the snake, and if current is not equal to previous
+                   length();
+                    int[] Position = new int[]{currentPosition[0] - 1, currentPosition[1]};//checks up
+                    return findTailRecursive(Position, currentPosition);
+                }
+                if ((currentPosition[0] + 1 < game.length) && (game[0 + 1][1] == true) && (previousPosition[0] != currentPosition[0] + 1)) {
+                   length();
+                    int[] Position = new int[]{currentPosition[0] + 1, currentPosition[1]};//checks down
+                    return findTailRecursive(Position, currentPosition);
+                }
+                if ((currentPosition[1] - 1 < game.length) && (game[0][1 - 1] == true) && (previousPosition[0] != currentPosition[1] - 1)) {
+                    length();
+                    int[] Position = new int[]{currentPosition[0], currentPosition[1] - 1};//checks left
+                    return findTailRecursive(Position, currentPosition);
+                }
+                if ((currentPosition[1] + 1 < game.length) && (game[0][1 + 1] == true) && (previousPosition[0] != currentPosition[1] + 1)) {
+                    length();
+                    int[] Position = new int[]{currentPosition[0] - 1, currentPosition[1]};//checks right
+                    return findTailRecursive(Position, currentPosition);
+
+                }
+
+
+
+        return currentPosition;
+    }
+
     private void resetCounters(){
         exhaustiveChecks=0;
         recursiveChecks=0;
 
     }
     private static int getRecursiveChecks(){
-
+return recursiveChecks;
     }
     private static int getExhaustiveChecks(){
-
+return exhaustiveChecks;
     }
 }
